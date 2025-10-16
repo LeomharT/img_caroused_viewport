@@ -1,0 +1,57 @@
+.embed-preview {
+  width: 720px;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-caroused {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.current-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  user-select: none;
+  pointer-events: none;
+  width: 720px;
+  aspect-ratio: 16 / 9;
+}
+.embed-caroused {
+  width: 256px;
+  height: 128px;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  overflow: hidden;
+}
+
+.embed-caroused-list {
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s ease 0s;
+}
+
+.embed-caroused-item {
+  overflow: hidden;
+  cursor: pointer;
+
+  border: 5px solid white;
+  box-sizing: border-box;
+
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.embed-caroused-item:nth-of-type(1) {
+  /* z-index: 10 !important; */
+}
