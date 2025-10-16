@@ -35,6 +35,13 @@ const IMAGE_CAROUSED = document.createElement("div");
 IMAGE_CAROUSED.className = "image-caroused";
 PREVIEW_NODE.append(IMAGE_CAROUSED);
 
+/**
+ * Preview element width
+ */
+const SIZE = {
+  width: 720,
+};
+
 const DOWN = {
   x: 0,
 };
@@ -52,34 +59,25 @@ function onPointUp() {
  * @param {PointerEvent} e
  */
 function onPointMove(e) {
-  setTimeout(() => {
-    const rect = PREVIEW_NODE.getBoundingClientRect();
-    IMAGE_CAROUSED.setPointerCapture(e.pointerId);
+  OFFSET_X += DOWN.x - e.clientX;
+  OFFSET_X = Math.max(0.0, OFFSET_X);
+  OFFSET_X = Math.min(SIZE.width * (IMG_URLS.length - 1), OFFSET_X);
 
-    OFFSET_X += DOWN.x - e.clientX;
-    OFFSET_X = Math.max(0.0, OFFSET_X);
-    OFFSET_X = Math.min(rect.width * (IMG_URLS.length - 1), OFFSET_X);
-
-    IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
-    DOWN.x = e.clientX;
-  });
+  IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
+  DOWN.x = e.clientX;
 }
 
 IMAGE_CAROUSED.addEventListener("pointerdown", onPointDown);
-IMAGE_CAROUSED.addEventListener("pointerup", onPointUp);
+window.addEventListener("pointerup", onPointUp);
 
 IMG_URLS.forEach((url, index) => {
-  setTimeout(() => {
-    const rect = PREVIEW_NODE.getBoundingClientRect();
+  const CURRENT_IMAGE = document.createElement("img");
+  CURRENT_IMAGE.className = "current-image";
+  CURRENT_IMAGE.src = url;
+  CURRENT_IMAGE.style.transform = `translateX(${SIZE.width * index}px)`;
 
-    const CURRENT_IMAGE = document.createElement("img");
-    CURRENT_IMAGE.className = "current-image";
-    CURRENT_IMAGE.src = url;
-    CURRENT_IMAGE.style.transform = `translateX(${rect.width * index}px)`;
-
-    IMAGE_CAROUSED.append(CURRENT_IMAGE);
-    IMAGE_CAROUSED.style.width = `${rect.width * (index + 1)}px`;
-  }, 0);
+  IMAGE_CAROUSED.append(CURRENT_IMAGE);
+  IMAGE_CAROUSED.style.width = `${SIZE.width * (index + 1)}px`;
 });
 
 /**
