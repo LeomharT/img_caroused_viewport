@@ -83,19 +83,19 @@ function onPointUp() {
   IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
 
   setTimeout(() => {
-    IMAGE_CAROUSED.style.transition = "none";
-    if (TARGET_INDEX > embedImageEl.length - 1) {
-      OFFSET_X = 0;
-      IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
-    }
+    console.log(TARGET_INDEX, embedImageEl.length);
 
-    console.log(TARGET_INDEX);
     CAROUSED_LIST.style.transform = `translateX(${-TARGET_INDEX * offset}px)`;
     CAROUSED_ITEMS.forEach((_el, _index, _arr) => {
       _el.style.zIndex = _arr.length - _index;
-
       if (_index === TARGET_INDEX) _el.style.zIndex = 50;
     });
+
+    IMAGE_CAROUSED.style.transition = "none";
+    if (TARGET_INDEX >= embedImageEl.length) {
+      OFFSET_X = (TARGET_INDEX % embedImageEl.length) * SIZE.width;
+      IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
+    }
   }, 400);
 }
 /**
