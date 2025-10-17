@@ -53,6 +53,7 @@ const DOWN = {
 };
 
 let OFFSET_X = 0;
+let TARGET_INDEX = 0;
 
 function onPointDown(e) {
   if (!IS_MODBILE_DEVICE) {
@@ -70,28 +71,32 @@ function onPointUp() {
 
   const OFFSET_PERCENTAGE = OFFSET_X / SIZE.width;
 
-  let target = 0;
-
   if (OFFSET_PERCENTAGE % 1 <= 0.5) {
-    target = Math.floor(OFFSET_PERCENTAGE % IMG_URLS.length);
+    TARGET_INDEX = Math.floor(OFFSET_PERCENTAGE % IMG_URLS.length);
   } else {
-    target = Math.ceil(OFFSET_PERCENTAGE % IMG_URLS.length);
+    TARGET_INDEX = Math.ceil(OFFSET_PERCENTAGE % IMG_URLS.length);
   }
 
-  OFFSET_X = target * SIZE.width;
+  OFFSET_X = TARGET_INDEX * SIZE.width;
 
   IMAGE_CAROUSED.style.transition = "all 0.3s ease 0s";
   IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
 
   setTimeout(() => {
     IMAGE_CAROUSED.style.transition = "none";
-    if (target > embedImageEl.length - 1) {
+    if (TARGET_INDEX > embedImageEl.length - 1) {
       OFFSET_X = 0;
       IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
     }
-  }, 400);
 
-  console.log(target);
+    console.log(TARGET_INDEX);
+    CAROUSED_LIST.style.transform = `translateX(${-TARGET_INDEX * offset}px)`;
+    CAROUSED_ITEMS.forEach((_el, _index, _arr) => {
+      _el.style.zIndex = _arr.length - _index;
+
+      if (_index === TARGET_INDEX) _el.style.zIndex = 50;
+    });
+  }, 400);
 }
 /**
  * @param {PointerEvent | TouchEvent} e
@@ -99,8 +104,6 @@ function onPointUp() {
 function onPointMove(e) {
   let MOVE_X = e.clientX;
   if (IS_MODBILE_DEVICE) MOVE_X = e.touches[0].clientX;
-
-  console.log(MOVE_X);
 
   OFFSET_X += DOWN.x - MOVE_X;
   OFFSET_X = Math.max(0.0, OFFSET_X);
@@ -163,7 +166,9 @@ IMG_URLS.forEach((url, index) => {
 CAROUSED_LIST.append(...CAROUSED_ITEMS);
 
 CAROUSED_ITEMS.forEach((el, index, arr) => {
-  el.addEventListener("click", () => {
+  el.addEventListener("click", (e) => {
+    e.stopPropagation();
+
     if (!enabled) return;
 
     enabled = false;
@@ -173,12 +178,18 @@ CAROUSED_ITEMS.forEach((el, index, arr) => {
       el.style.zIndex = 50;
     }
 
+    OFFSET_X = current * SIZE.width;
+    TARGET_INDEX = current;
+    IMAGE_CAROUSED.style.transition = "all 0.3s ease 0s";
+    IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
+
     // CURRENT_IMAGE.src = IMG_URLS[current];
     CAROUSED_LIST.style.transform = `translateX(${-current * offset}px)`;
 
     // Wait for animation
     setTimeout(() => {
       enabled = true;
+      IMAGE_CAROUSED.style.transition = "none";
     }, 350);
 
     if (index >= embedImageEl.length) {
