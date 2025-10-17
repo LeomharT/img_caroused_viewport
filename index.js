@@ -99,7 +99,9 @@ function onPointUp() {
       setTimeout(() => {
         console.log("No style");
         CAROUSED_LIST.style.transition = "none";
-        CAROUSED_LIST.style.transform = `translateX(${0}px)`;
+        CAROUSED_LIST.style.transform = `translateX(${
+          -(TARGET_INDEX % embedImageEl.length) * offset
+        }px)`;
       }, 600);
 
       setTimeout(() => {
