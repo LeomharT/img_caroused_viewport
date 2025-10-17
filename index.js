@@ -1,5 +1,11 @@
 let IMG_URLS = [];
 
+let IS_MODBILE_DEVICE = false;
+
+if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+  IS_MODBILE_DEVICE = true;
+}
+
 const body = document.querySelector("body");
 
 /**
@@ -49,26 +55,70 @@ const DOWN = {
 let OFFSET_X = 0;
 
 function onPointDown(e) {
-  DOWN.x = e.clientX;
-  IMAGE_CAROUSED.addEventListener("pointermove", onPointMove);
+  if (!IS_MODBILE_DEVICE) {
+    DOWN.x = e.clientX;
+    IMAGE_CAROUSED.addEventListener("pointermove", onPointMove);
+  } else {
+    DOWN.x = e.touches[0].clientX;
+    IMAGE_CAROUSED.addEventListener("touchmove", onPointMove);
+  }
 }
+
 function onPointUp() {
+  IMAGE_CAROUSED.removeEventListener("touchmove", onPointMove);
   IMAGE_CAROUSED.removeEventListener("pointermove", onPointMove);
+
+  const OFFSET_PERCENTAGE = OFFSET_X / SIZE.width;
+
+  let target = 0;
+
+  if (OFFSET_PERCENTAGE % 1 <= 0.5) {
+    target = Math.floor(OFFSET_PERCENTAGE % IMG_URLS.length);
+  } else {
+    target = Math.ceil(OFFSET_PERCENTAGE % IMG_URLS.length);
+  }
+
+  OFFSET_X = target * SIZE.width;
+
+  IMAGE_CAROUSED.style.transition = "all 0.3s ease 0s";
+  IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
+
+  setTimeout(() => {
+    IMAGE_CAROUSED.style.transition = "none";
+    if (target > embedImageEl.length - 1) {
+      OFFSET_X = 0;
+      IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
+    }
+  }, 400);
+
+  console.log(target);
 }
 /**
- * @param {PointerEvent} e
+ * @param {PointerEvent | TouchEvent} e
  */
 function onPointMove(e) {
-  OFFSET_X += DOWN.x - e.clientX;
+  let MOVE_X = e.clientX;
+  if (IS_MODBILE_DEVICE) MOVE_X = e.touches[0].clientX;
+
+  console.log(MOVE_X);
+
+  OFFSET_X += DOWN.x - MOVE_X;
   OFFSET_X = Math.max(0.0, OFFSET_X);
   OFFSET_X = Math.min(SIZE.width * (IMG_URLS.length - 1), OFFSET_X);
 
   IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
-  DOWN.x = e.clientX;
+  DOWN.x = MOVE_X;
 }
 
-IMAGE_CAROUSED.addEventListener("pointerdown", onPointDown);
-window.addEventListener("pointerup", onPointUp);
+if (!IS_MODBILE_DEVICE) {
+  // Desktop events
+  IMAGE_CAROUSED.addEventListener("pointerdown", onPointDown);
+  window.addEventListener("pointerup", onPointUp);
+} else {
+  // Mobile events
+  IMAGE_CAROUSED.addEventListener("touchstart", onPointDown);
+  window.addEventListener("touchend", onPointUp);
+}
 
 IMG_URLS.forEach((url, index) => {
   const CURRENT_IMAGE = document.createElement("img");
