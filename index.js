@@ -95,6 +95,16 @@ function onPointUp() {
     if (TARGET_INDEX >= embedImageEl.length) {
       OFFSET_X = (TARGET_INDEX % embedImageEl.length) * SIZE.width;
       IMAGE_CAROUSED.style.transform = `translateX(${-OFFSET_X}px)`;
+
+      setTimeout(() => {
+        console.log("No style");
+        CAROUSED_LIST.style.transition = "none";
+        CAROUSED_LIST.style.transform = `translateX(${0}px)`;
+      }, 600);
+
+      setTimeout(() => {
+        CAROUSED_LIST.style.transition = "all 0.3s ease 0s";
+      }, 700);
     }
   }, 400);
 }
